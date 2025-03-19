@@ -1,0 +1,7 @@
+pip installs: 
+    selenium
+    httpx
+    requests
+    scrapy
+    
+sudo apt install python3-scrapy (for scrapy shell to work)
