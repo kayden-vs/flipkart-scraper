@@ -29,9 +29,12 @@ class ProducsSpider(scrapy.Spider):
         for productArea in response.css("div.hCKiGj"):
             product_link = productArea.css("a:first-of-type::attr(href)").get()
             discount_text = productArea.css("div.UkUFwK > span::text").get()
+            price = productArea.css("div.hCKiGj > a:nth-of-type(2) > div.hl05eU > div.Nx9bqj::text").get()
+            price = price.replace("\u20b9", "").strip()
             discount_value = self.extractValue(discount_text)
             if discount_value > 70:                             #discount here
                 yield {
                     "discount": discount_text,
+                    "price": price,
                     "product-link": f"https://flipkart.com{product_link}",
                 }
