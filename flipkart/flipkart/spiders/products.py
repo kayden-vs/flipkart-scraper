@@ -9,9 +9,9 @@ class ProducsSpider(scrapy.Spider):
     allowed_domains = ["flipkart.com"]
     
     def start_requests(self):
-        start_urls = search_terms.automotive_accessories  #edited
+        start_urls = search_terms.searchTerms  #edited
         base_url = "https://www.flipkart.com/search?q={}&page={}"
-        for term in search_terms.automotive_accessories: #edited
+        for term in search_terms.searchTerms: #edited
             for page in range(1,26):
                 url = base_url.format(term, page)
                 yield scrapy.Request(url=url, callback=self.parse)
