@@ -125,6 +125,7 @@ discount_items = [
 ]
 
 searchTerms = (
+    discount_items + 
     fashion_and_apparel +
     electronics_and_gadgets +
     home_and_kitchen +
@@ -133,6 +134,5 @@ searchTerms = (
     sports_fitness_outdoors +
     automotive_accessories +
     office_and_accessories +
-    miscellaneous +
-    discount_items
+    miscellaneous
 )
