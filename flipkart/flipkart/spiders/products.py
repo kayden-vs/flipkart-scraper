@@ -1,6 +1,6 @@
 import scrapy
 import re
-import search_terms
+from . import search_terms
 import random
 import time
 
