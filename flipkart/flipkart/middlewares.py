@@ -5,6 +5,8 @@
 
 from scrapy import signals
 import random
+from selenium.webdriver.chrome.service import Service
+from selenium import webdriver
 from fake_useragent import UserAgent
 
 # useful for handling different item types with a single interface

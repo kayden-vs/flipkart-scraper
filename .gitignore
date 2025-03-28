@@ -5,3 +5,4 @@ flipkart/build/
 flipkart/project.egg-info/
 flipkart/scrapinghub.yml
 flipkart/setup.py
+flipkart/flipkart/__pycache__/
