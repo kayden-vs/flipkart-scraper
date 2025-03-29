@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import logging
-
+#avoiding too much logging
 logging.getLogger("selenium.webdriver.remote.remote_connection").setLevel(logging.WARNING)
 
 class ProductsSpider(scrapy.Spider):
@@ -19,11 +19,11 @@ class ProductsSpider(scrapy.Spider):
     
     def start_requests(self):
         start_urls = search_terms.searchTerms  
-        base_url = "https://www.flipkart.com/search?q=men+clothing&page={}"          #change search temp
-        # for term in search_terms.searchTerms: #edited fix indentation when implementing
-        for page in range(1,26):
-            url = base_url.format(page)                                 #removed term temp
-            yield scrapy.Request(url=url, callback=self.parse)          #temp
+        base_url = "https://www.flipkart.com/search?q={}&page={}"          
+        for term in search_terms.searchTerms: 
+            for page in range(1,26):
+                url = base_url.format(page)                                 
+                yield scrapy.Request(url=url, callback=self.parse)          
 
     def extractValue(self, discount_text):
         if not discount_text:
@@ -67,7 +67,7 @@ class ProductsSpider(scrapy.Spider):
         driver = response.meta['driver']
 
         #logging url
-        self.logger.info("flipkart_product_url: %s", response.meta.get("flipkart_product_url"))
+        # self.logger.info("flipkart_product_url: %s", response.meta.get("flipkart_product_url"))
         wait = WebDriverWait(driver, 10)
         search_box = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#search")))
         search_box = driver.find_element(By.CSS_SELECTOR, "#search")
@@ -79,7 +79,7 @@ class ProductsSpider(scrapy.Spider):
         search_box.send_keys(Keys.ENTER)
 
         time.sleep(10)
-
+        #for debugging
         self.logger.info("Current URL after search submission: %s", driver.current_url)
         driver.save_screenshot("after_search.png")
         self.logger.info("Saved screenshot to after_search.png")
