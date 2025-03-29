@@ -101,9 +101,7 @@ miscellaneous = [
 ]
 
 discount_items = [
-    "books+discount", "novels+discount", "textbooks+discount", "e+readers+discount", 
-    "baby+products+discount", "baby+clothes+discount", "diapers+discount", 
-    "baby+strollers+discount", "maternity+wear+discount", "kids+school+supplies+discount", 
+    "books+discount", "novels+discount", "textbooks+discount", "e+readers+discount",
     "sneakers+discount", "running+shoes+discount", "formal+shoes+discount", 
     "casual+shoes+discount", "winter+wear+discount", "summer+wear+discount", 
     "jumpsuits+discount", "dresses+discount", "jackets+discount", "sweaters+discount", 
@@ -125,15 +123,15 @@ discount_items = [
 ]
 
 searchTerms = (
-    my_search_terms + 
-    discount_items + 
-    fashion_and_apparel +
-    electronics_and_gadgets +
-    home_and_kitchen +
+    # my_search_terms + 
+    electronics_and_gadgets + 
+    automotive_accessories +
+    office_and_accessories +
+    discount_items +
     furniture_and_decor +
     beauty_and_personalcare +
     sports_fitness_outdoors +
-    automotive_accessories +
+    fashion_and_apparel +
     office_and_accessories +
     miscellaneous
 )
