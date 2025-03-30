@@ -58,7 +58,14 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure selenium driver settings:
 SELENIUM_DRIVER_NAME = 'chrome'
 SELENIUM_DRIVER_EXECUTABLE_PATH = '/usr/local/bin/chromedriver'
-SELENIUM_DRIVER_ARGUMENTS=['--headless']
+#added more things for less resource usage
+SELENIUM_DRIVER_ARGUMENTS = [
+    '--headless',
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu'
+]
+
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 #EXTENSIONS = {

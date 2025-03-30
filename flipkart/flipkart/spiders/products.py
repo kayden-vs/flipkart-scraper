@@ -9,10 +9,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from .telegram_utils import send_telegram_message
 import logging
+import os
+from dotenv import load_dotenv
 #avoiding too much logging
 logging.getLogger("selenium.webdriver.remote.remote_connection").setLevel(logging.WARNING)
 
+load_dotenv()
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 class ProductsSpider(scrapy.Spider):
     name = "products"
     allowed_domains = ["flipkart.com", "pricehistory.app"]
@@ -20,7 +26,7 @@ class ProductsSpider(scrapy.Spider):
     def start_requests(self):
         start_urls = search_terms.searchTerms  
         base_url = "https://www.flipkart.com/search?q={}&page={}"          
-        for term in search_terms.automotive_accessories:   #edited
+        for term in search_terms.footwear:   #edited
             for page in range(1,26):
                 url = base_url.format(term, page)                                 
                 yield scrapy.Request(url=url, callback=self.parse)          
@@ -37,6 +43,8 @@ class ProductsSpider(scrapy.Spider):
 
     def parse(self, response):
         self.logger.info("Scraping URL: %s", response.url)
+        # Log an excerpt of the HTML to see if the page source is as expected
+        # self.logger.info("Response excerpt:\n%s", response.text[:1000])
         for productArea in response.css("div.hCKiGj"):
             product_link = productArea.css("a:first-of-type::attr(href)").get()
             discount_text = productArea.css("div.UkUFwK > span::text").get()
@@ -104,6 +112,15 @@ class ProductsSpider(scrapy.Spider):
         try:
             rating_scale = driver.find_element(By.CSS_SELECTOR, "div.rating-scale.row > div.active").text
             if rating_scale in ["Okay", "Yes"]:
+                #send notification to telegram
+                message = (
+                    f"<b>Product Found!</b>\n"
+                    f"Title: {product.get('title')}\n"
+                    f"Discount: {product.get('discount')}\n"
+                    f"Price: {product.get('price')}\n"
+                    f"Link: <a href='{product.get('product_link')}'>{product.get('product_link')}</a>"
+                )
+                send_telegram_message(message, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
                 yield product
             else:
                 self.logger.info("Didnt Pass rating scale. Skipping: %s", response.meta["flipkart_product_url"])

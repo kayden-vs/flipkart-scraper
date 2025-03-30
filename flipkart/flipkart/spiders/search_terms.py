@@ -4,6 +4,14 @@ my_search_terms = [
     
 ]
 
+footwear = [
+    "men+footwear",
+    'women+footwear',
+    'sneakers',
+    'running+shoes',
+    'formal+shoes',
+    'casual+shoes',
+]
 fashion_and_apparel = [
     "skincare",
     "men+clothing",
@@ -123,6 +131,7 @@ other_items = [
 
 searchTerms = (
     # my_search_terms + 
+    footwear +
     electronics_and_gadgets + 
     automotive_accessories +
     office_and_accessories +
