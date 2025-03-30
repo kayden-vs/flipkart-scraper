@@ -20,9 +20,9 @@ class ProductsSpider(scrapy.Spider):
     def start_requests(self):
         start_urls = search_terms.searchTerms  
         base_url = "https://www.flipkart.com/search?q={}&page={}"          
-        for term in search_terms.searchTerms: 
+        for term in search_terms.automotive_accessories:   #edited
             for page in range(1,26):
-                url = base_url.format(page)                                 
+                url = base_url.format(term, page)                                 
                 yield scrapy.Request(url=url, callback=self.parse)          
 
     def extractValue(self, discount_text):
@@ -40,6 +40,7 @@ class ProductsSpider(scrapy.Spider):
         for productArea in response.css("div.hCKiGj"):
             product_link = productArea.css("a:first-of-type::attr(href)").get()
             discount_text = productArea.css("div.UkUFwK > span::text").get()
+            title = productArea.css("a.WKTcLC::attr(title)").get()
             price = productArea.css("div.hCKiGj > a:nth-of-type(2) > div.hl05eU > div.Nx9bqj::text").get()
             price = price.replace("\u20b9", "").strip()
             discount_value = self.extractValue(discount_text)
@@ -52,6 +53,7 @@ class ProductsSpider(scrapy.Spider):
                     callback=self.parse_pricetracker,
                     meta={
                         "product": {
+                            "title": title,
                             "discount": discount_text,
                             "price": price,
                             "product_link": full_product_url,

@@ -1,125 +1,124 @@
 my_search_terms = [
-    "lamp+discount",
-    "skincare+discount",
+    "lamp",
+    "skincare",
     
 ]
 
 fashion_and_apparel = [
-    "skincare+discount",
-    "men+clothing+discount",
-    "men+ethnic+wear+discount",
-    "men+casual+wear+discount",
-    "men+formal+wear+discount",
-    "men+footwear+discount",
-    "men+accessories+discount",
-    "women+clothing+discount",
-    "women+ethnic+wear+discount",
-    "women+western+wear+discount",
-    "women+footwear+discount",
-    "women+accessories+discount",
-    "women+jewellery+discount",
-    "women+handbags+discount",
-    "men+accessories+discount",
-    "kids+clothing+discount",
-    "kids+footwear+discount",
-    "kids+toys+discount",
+    "skincare",
+    "men+clothing",
+    "men+ethnic+wear",
+    "men+casual+wear",
+    "men+formal+wear",
+    "men+footwear",
+    "men+accessories",
+    "women+clothing",
+    "women+ethnic+wear",
+    "women+western+wear",
+    "women+footwear",
+    "women+accessories",
+    "women+jewellery",
+    "women+handbags",
+    "men+accessories",
+    "kids+clothing",
+    "kids+footwear",
+    "kids+toys",
 ]
 
 electronics_and_gadgets = [
-    "mobile+phones+discount",
-    "smartphones+discount",
-    "laptops+discount",
-    "tablets+discount",
-    "televisions+discount",
-    "headphones+discount",
-    "earbuds+discount",
-    "speakers+discount",
-    "gaming+consoles+discount",
-    "gaming+accessories+discount",
-    "cameras+discount",
-    "dslr+discount",
-    "mirrorless+cameras+discount",
-    "smart+watches+discount",
-    "wearable+devices+discount",
-    "vr+headsets+discount",
-    "drones+discount",
+    "mobile+phones",
+    "smartphones",
+    "laptops",
+    "tablets",
+    "televisions",
+    "headphones",
+    "earbuds",
+    "speakers",
+    "gaming+consoles",
+    "gaming+accessories",
+    "cameras",
+    "dslr",
+    "mirrorless+cameras",
+    "smart+watches",
+    "wearable+devices",
+    "vr+headsets",
+    "drones",
 ]
 
 home_and_kitchen = [
-    "refrigerators+discount", "washing+machines+discount", "air+conditioners+discount", "microwaves+discount", "kitchen+appliances+discount", "water+purifiers+discount", "vacuum+cleaners+discount"
+    "refrigerators", "washing+machines", "air+conditioners", "microwaves", "kitchen+appliances", "water+purifiers", "vacuum+cleaners"
 
 ]
 
 furniture_and_decor = [ 
-    "furniture+discount",
-    "sofas+discount",
-    "beds+discount",
-    "dining+tables+discount",
-    "chairs+discount",
-    "home+decor+discount,"
-    "lighting+discount",
-    "curtains+discount",
-    "carpets+discount",
-    "bedsheets+discount",
-    "cushions+discount",
-    "office+furniture+discount",
+    "furniture",
+    "sofas",
+    "beds",
+    "dining+tables",
+    "chairs",
+    "home+decor,"
+    "lighting",
+    "curtains",
+    "carpets",
+    "bedsheets",
+    "cushions",
+    "office+furniture",
 ]
 
 beauty_and_personalcare = [
-    "beauty+products+discount",
-    "makeup+discount",
-    "skincare+discount",
-    "hair+care+discount",
-    "personal+care+discount",
-    "health+and+wellness+discount",
+    "beauty+products",
+    "makeup",
+    "skincare",
+    "hair+care",
+    "personal+care",
+    "health+and+wellness",
 ]
 
 sports_fitness_outdoors = [
-    "sports+equipment+discount",
-    "fitness+equipment+discount",
-    "cycling+accessories+discount",
-    "outdoor+gear+discount",
+    "sports+equipment",
+    "fitness+equipment",
+    "cycling+accessories",
+    "outdoor+gear",
 ]
 
 automotive_accessories = [
-    "automotive+accessories+discount",
-    "bike+accessories+discount",
-    "car+electronics+discount",
+    "automotive+accessories",
+    "bike+accessories",
+    "car+electronics",
 ]
 
 office_and_accessories = [
-    "office+supplies+discount",
-    "computers+accessories+discount",
-    "printers+discount",
-    "networking+devices+discount",
-    "stationery+discount",
+    "office+supplies",
+    "computers+accessories",
+    "printers",
+    "networking+devices",
+    "stationery",
 ]
 
 miscellaneous = [
-    "pet+supplies+discount", "musical+instruments+discount", "travel+accessories+discount", "luggage+discount", "sunglasses+discount", "watches+discount", "travel+gadgets+discount", "gaming+monitors+discount", "computer+monitors+discount", "graphics+cards+discount", "processors+discount", "motherboards+discount", "ram+discount", "storage+devices+discount", "external+drives+discount", "routers+discount", "smart+accessories+discount"
+    "pet+supplies", "musical+instruments", "travel+accessories", "luggage", "sunglasses", "watches", "travel+gadgets", "gaming+monitors", "computer+monitors", "graphics+cards", "processors", "motherboards", "ram", "storage+devices", "external+drives", "routers", "smart+accessories"
 
 ]
-
-discount_items = [
-    "books+discount", "novels+discount", "textbooks+discount", "e+readers+discount",
-    "sneakers+discount", "running+shoes+discount", "formal+shoes+discount", 
-    "casual+shoes+discount", "winter+wear+discount", "summer+wear+discount", 
-    "jumpsuits+discount", "dresses+discount", "jackets+discount", "sweaters+discount", 
-    "backpacks+discount", "cookware+discount", "bakeware+discount", "blenders+discount", 
-    "juicers+discount", "smart+home+devices+discount", "home+automation+discount", 
-    "security+cameras+discount", "LED+TVs+discount", "projectors+discount", 
-    "fitness+trackers+discount", "smart+scales+discount", "health+supplements+discount", 
-    "vitamins+discount", "protein+powder+discount", "grocery+discount", 
-    "school+supplies+discount", "crafts+discount", "DIY+tools+discount", 
-    "gardening+tools+discount", "plant+care+discount", "outdoor+furniture+discount", 
-    "patio+furniture+discount", "car+care+products+discount", "bike+helmets+discount", 
-    "scooters+discount", "electric+vehicles+discount", "memory+cards+discount", 
-    "USB+drives+discount", "scanner+discount", "office+chairs+discount", 
-    "office+desks+discount", "video+conferencing+equipment+discount", 
-    "surveillance+systems+discount", "air+coolers+discount", "water+heaters+discount", 
-    "electric+fans+discount", "ceiling+fans+discount", "exhaust+fans+discount", 
-    "portable+AC+discount", "beauty+tools+discount", "hair+dryers+discount", 
-    "straighteners+discount", "curling+irons+discount"
+other_items = [
+    "books", "novels", "textbooks", "e+readers",
+    "sneakers", "running+shoes", "formal+shoes", 
+    "casual+shoes", "winter+wear", "summer+wear", 
+    "jumpsuits", "dresses", "jackets", "sweaters", 
+    "backpacks", "cookware", "bakeware", "blenders", 
+    "juicers", "smart+home+devices", "home+automation", 
+    "security+cameras", "LED+TVs", "projectors", 
+    "fitness+trackers", "smart+scales", "health+supplements", 
+    "vitamins", "protein+powder", "grocery", 
+    "school+supplies", "crafts", "DIY+tools", 
+    "gardening+tools", "plant+care", "outdoor+furniture", 
+    "patio+furniture", "car+care+products", "bike+helmets", 
+    "scooters", "electric+vehicles", "memory+cards", 
+    "USB+drives", "scanner", "office+chairs", 
+    "office+desks", "video+conferencing+equipment", 
+    "surveillance+systems", "air+coolers", "water+heaters", 
+    "electric+fans", "ceiling+fans", "exhaust+fans", 
+    "portable+AC", "beauty+tools", "hair+dryers", 
+    "straighteners", "curling+irons"
 ]
 
 searchTerms = (
@@ -127,7 +126,7 @@ searchTerms = (
     electronics_and_gadgets + 
     automotive_accessories +
     office_and_accessories +
-    discount_items +
+    other_items +
     furniture_and_decor +
     beauty_and_personalcare +
     sports_fitness_outdoors +
