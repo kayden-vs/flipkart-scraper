@@ -45,12 +45,40 @@ class ProductsSpider(scrapy.Spider):
         self.logger.info("Scraping URL: %s", response.url)
         # Log an excerpt of the HTML to see if the page source is as expected
         # self.logger.info("Response excerpt:\n%s", response.text[:1000])
-        for productArea in response.css("div.hCKiGj"):
+
+        #handles different page layouts
+        product_areas = response.css("div.hCKiGj")
+        layout = 'first'
+        if not product_areas:
+            product_areas = response.css("div.slAVV4")
+            if product_areas:
+                layout = 'second'
+            else:
+                product_areas = response.css("div.tUxRFH")
+                if product_areas:
+                    layout = 'third'
+
+
+        for productArea in product_areas:
             product_link = productArea.css("a:first-of-type::attr(href)").get()
             discount_text = productArea.css("div.UkUFwK > span::text").get()
-            title = productArea.css("a.WKTcLC::attr(title)").get()
-            price = productArea.css("div.hCKiGj > a:nth-of-type(2) > div.hl05eU > div.Nx9bqj::text").get()
-            price = price.replace("\u20b9", "").strip()
+
+            if layout == 'first':
+                title = productArea.css("a.WKTcLC::attr(title)").get()
+                price = productArea.css("div.Nx9bqj::text").get()
+            elif layout == 'second':
+                title = productArea.css("a.wjcEIp::attr(title)").get()
+                price = productArea.css("div.Nx9bqj::text").get()
+            elif layout == 'third':
+                title = productArea.css("div.KzDlHZ").get()
+                price = productArea.css("div.Nx9bqj::text").get()
+
+            if price:
+                price = price.replace("\u20b9", "").strip()
+            else:
+                self.logger.error("Price not found for product: %s", title)
+                continue
+        
             discount_value = self.extractValue(discount_text)
             if discount_value > 75:
                 full_product_url = f"https://flipkart.com{product_link}"
