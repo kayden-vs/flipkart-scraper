@@ -24,9 +24,9 @@ class ProductsSpider(scrapy.Spider):
     allowed_domains = ["flipkart.com", "pricehistory.app"]
     
     def start_requests(self):
-        start_urls = search_terms.searchTerms  
+        start_urls = search_terms.my_search_terms  #edited
         base_url = "https://www.flipkart.com/search?q={}&page={}"          
-        for term in search_terms.footwear:   #edited
+        for term in search_terms.my_search_terms:   #edited
             for page in range(1,26):
                 url = base_url.format(term, page)                                 
                 yield scrapy.Request(url=url, callback=self.parse)          
@@ -83,7 +83,7 @@ class ProductsSpider(scrapy.Spider):
             if discount_value > 75:
                 full_product_url = f"https://flipkart.com{product_link}"
                 #logging if a product is found
-                self.logger.info(f"Found a product with discount value: {discount_value}")
+                self.logger.info(f"FOUND : {title}: Rs.{price} ({discount_value}% Off)")
                 yield SeleniumRequest(
                     url="https://pricehistory.app",
                     callback=self.parse_pricetracker,
@@ -97,7 +97,7 @@ class ProductsSpider(scrapy.Spider):
                         "flipkart_product_url": full_product_url,
                     },
                     wait_time=5,
-                    dont_filter=True
+                    dont_filter=True  #changed
                 )
     
     def parse_pricetracker(self, response):
@@ -118,34 +118,48 @@ class ProductsSpider(scrapy.Spider):
 
         time.sleep(10)
         #for debugging
-        self.logger.info("Current URL after search submission: %s", driver.current_url)
+        # self.logger.info("Current URL after search submission: %s", driver.current_url)
         driver.save_screenshot("after_search.png")
         self.logger.info("Saved screenshot to after_search.png")
         #condition 1: product not found
-        try:
-            wait = WebDriverWait(driver, 10)
-            wait.until(EC.any_of(
-                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center"))
-            ))
-        except Exception as e:
-            self.logger.error("Timeout waiting for pricetracker page to load: %s", e)
-            return
+        # try:
+        #     wait = WebDriverWait(driver, 10)
+        #     wait.until(EC.any_of(
+        #         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center"))
+        #     ))
+        # except Exception as e:
+        #     self.logger.error("Timeout waiting for pricetracker page to load: %s", e)
+        #     return
         
-        not_found_elements = driver.find_elements(By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center")
-        if not_found_elements and any("Page not Found!" or "Product Added to Track!" in el.text for el in not_found_elements):
-            self.logger.info("Product not found on pricetracker. Skipping: %s", response.meta["flipkart_product_url"])
-            return
+        # not_found_elements = driver.find_elements(By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center")
+        # if not_found_elements and any(
+        #     msg in el.text for el in not_found_elements for msg in [
+        #         "Page not Found!",
+        #         "Product Added to Track!",
+        #         "Store Not Supported as of Now!"
+        #     ]
+        # ):
+        #     self.logger.info(
+        #         "Product not found on pricetracker. Skipping: %s",
+        #         response.meta["flipkart_product_url"]
+        #     )
+        #     return
         
         #condition 2: product result is shown
         try:
-            rating_scale = driver.find_element(By.CSS_SELECTOR, "div.rating-scale.row > div.active").text
+            rating_scale_el = WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.rating-scale.row > div.active"))
+            )
+            rating_scale = rating_scale_el.text.strip()
+            self.logger.info("Rating scale text obtained: '%s'", rating_scale)
             if rating_scale in ["Okay", "Yes"]:
-                #send notification to telegram
+                #send telegram notification
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
                     f"Discount: {product.get('discount')}\n"
                     f"Price: {product.get('price')}\n"
+                    f"Rating Scale: {rating_scale}\n" 
                     f"Link: <a href='{product.get('product_link')}'>{product.get('product_link')}</a>"
                 )
                 send_telegram_message(message, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
@@ -153,4 +167,4 @@ class ProductsSpider(scrapy.Spider):
             else:
                 self.logger.info("Didnt Pass rating scale. Skipping: %s", response.meta["flipkart_product_url"])
         except Exception as e:
-            self.logger.error("Error getting the rating scale information: %s", e)
+            self.logger.error("Error getting the rating scale information: %s", e)  #improve this avoid too much logging

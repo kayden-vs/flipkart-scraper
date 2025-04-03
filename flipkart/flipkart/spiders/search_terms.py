@@ -1,6 +1,8 @@
 my_search_terms = [
-    "lamp",
-    "skincare",
+    "face+serum+vitamin+c",
+    # "skincare",
+    # "sunscreen",
+    "face+serum"
     
 ]
 
@@ -129,11 +131,34 @@ other_items = [
     "straighteners", "curling+irons"
 ]
 
+popular_discount = [
+    "smartphones",
+    "gaming+laptops",
+    "smart+watches",
+    "wireless+earbuds",
+    "bluetooth+speakers",
+    "LED+TVs",
+    "drones",
+    "gaming+consoles",
+    "virtual+reality",
+    "air+conditioners",
+    "washing+machines",
+    "refrigerators"
+]
+
+tempSearchTerms = (
+    # my_search_terms +
+    footwear +
+    automotive_accessories + 
+    sports_fitness_outdoors
+
+)
 searchTerms = (
-    # my_search_terms + 
+    my_search_terms + 
     footwear +
     electronics_and_gadgets + 
     automotive_accessories +
+    popular_discount +
     office_and_accessories +
     other_items +
     furniture_and_decor +
