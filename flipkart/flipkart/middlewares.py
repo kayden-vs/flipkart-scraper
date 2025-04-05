@@ -5,6 +5,7 @@
 
 from scrapy import signals
 import random
+import re
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from fake_useragent import UserAgent
@@ -65,41 +66,66 @@ class FlipkartSpiderMiddleware:
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
 
-
 class FlipkartDownloaderMiddleware:
     def __init__(self):
-        self.ua = UserAgent()
+        # Initialize with specific browsers that support sec-ch-ua headers well
+        self.ua = UserAgent(browsers=['Chrome', 'Firefox', 'Edge'])
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
-        # Assign a random realistic user agent using fake-useragent
-        request.headers["User-Agent"] = self.ua.random
+        # Get complete user agent dictionary with all browser details
+        ua_dict = self.ua.getRandom
+        
+        # Set the user agent string from the dictionary
+        request.headers["User-Agent"] = ua_dict['useragent']
         request.headers.pop("X-Forwarded-For", None)
+        
+        # For pricehistory.app requests, add browser-specific headers
+        if 'pricehistory.app' in request.url:
+            request.headers["Content-Type"] = "application/json"
+            request.headers["Referer"] = "https://pricehistory.app/"
+            request.headers["Accept"] = "application/json, text/plain, */*"
+            request.headers["Accept-Language"] = "en-US,en;q=0.9"
+            
+            # Extract key information directly from the dictionary
+            browser = ua_dict['browser']
+            version = ua_dict['browser_version_major_minor']
+            os_name = ua_dict['os']
+            device_type = ua_dict['type']
+            
+            # Set mobile flag based on device type
+            is_mobile = device_type == 'mobile'
+            request.headers["Sec-Ch-Ua-Mobile"] = "?1" if is_mobile else "?0"
+            
+            # Set platform based on OS
+            request.headers["Sec-Ch-Ua-Platform"] = f'"{os_name}"'
+            
+            # Set browser-specific sec-ch-ua header
+            if browser == 'Chrome':
+                request.headers["Sec-Ch-Ua"] = f'"Chromium";v="{int(version)}", "Not:A-Brand";v="24", "Google Chrome";v="{int(version)}"'
+                
+            elif browser == 'Firefox':
+                request.headers["Sec-Ch-Ua"] = f'"Firefox";v="{int(version)}"'
+                
+            elif browser == 'Edge':
+                request.headers["Sec-Ch-Ua"] = f'"Microsoft Edge";v="{int(version)}", "Chromium";v="{int(version)}"'
+            
+            # Add additional headers for more realistic browser fingerprint
+            request.headers["Sec-Fetch-Dest"] = "empty"
+            request.headers["Sec-Fetch-Mode"] = "cors"
+            request.headers["Sec-Fetch-Site"] = "same-origin"
+            
         return None
-
+    
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
         pass
 
     def spider_opened(self, spider):
