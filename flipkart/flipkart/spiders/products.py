@@ -24,9 +24,9 @@ class ProductsSpider(scrapy.Spider):
     allowed_domains = ["flipkart.com", "pricehistory.app"]
     
     def start_requests(self):
-        start_urls = search_terms.my_search_terms  #edited
+        start_urls = search_terms.fashion_and_apparel  #edited
         base_url = "https://www.flipkart.com/search?q={}&page={}"          
-        for term in search_terms.my_search_terms:   #edited
+        for term in search_terms.fashion_and_apparel:   #edited
             for page in range(1,26):
                 url = base_url.format(term, page)                                 
                 yield scrapy.Request(url=url, callback=self.parse)          
@@ -104,7 +104,6 @@ class ProductsSpider(scrapy.Spider):
         product = response.meta["product"]
         driver = response.meta['driver']
 
-        #logging url
         # self.logger.info("flipkart_product_url: %s", response.meta.get("flipkart_product_url"))
         wait = WebDriverWait(driver, 10)
         search_box = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#search")))
@@ -112,15 +111,14 @@ class ProductsSpider(scrapy.Spider):
         search_box.clear()
         search_box.send_keys(response.meta["flipkart_product_url"])
         self.logger.info("Typed URL in search box: %s", search_box.get_attribute("value"))
-        # search_button = driver.find_element(By.CSS_SELECTOR, "#search-submit")
-        # search_button.click()
         search_box.send_keys(Keys.ENTER)
-
         time.sleep(10)
+
         #for debugging
         # self.logger.info("Current URL after search submission: %s", driver.current_url)
         driver.save_screenshot("after_search.png")
         self.logger.info("Saved screenshot to after_search.png")
+
         #condition 1: product not found
         # try:
         #     wait = WebDriverWait(driver, 10)
@@ -167,4 +165,4 @@ class ProductsSpider(scrapy.Spider):
             else:
                 self.logger.info("Didnt Pass rating scale. Skipping: %s", response.meta["flipkart_product_url"])
         except Exception as e:
-            self.logger.error("Error getting the rating scale information: %s", e)  #improve this avoid too much logging
+            self.logger.error("Product not in Pricetracker: %s", product.get('title'))  #replaced this selenium error

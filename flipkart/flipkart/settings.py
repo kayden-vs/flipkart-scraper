@@ -9,8 +9,8 @@
 
 BOT_NAME = "flipkart"
 
-SPIDER_MODULES = ["flipkart.spiders"]
-NEWSPIDER_MODULE = "flipkart.spiders"
+SPIDER_MODULES = ["flipkart.flipkart.spiders"]
+NEWSPIDER_MODULE = "flipkart.flipkart.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -52,7 +52,7 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    "scrapy_selenium.SeleniumMiddleware": 800,
-   "flipkart.middlewares.FlipkartDownloaderMiddleware": 543,
+   "flipkart.flipkart.middlewares.FlipkartDownloaderMiddleware": 543,
 }
 
 # Configure selenium driver settings:

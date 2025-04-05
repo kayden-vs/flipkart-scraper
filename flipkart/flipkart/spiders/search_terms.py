@@ -15,24 +15,25 @@ footwear = [
     'casual+shoes',
 ]
 fashion_and_apparel = [
-    "skincare",
+    # "skincare",
+    # "caps+for+men"
     "men+clothing",
-    "men+ethnic+wear",
+    # "men+ethnic+wear",
     "men+casual+wear",
     "men+formal+wear",
     "men+footwear",
     "men+accessories",
     "women+clothing",
     "women+ethnic+wear",
-    "women+western+wear",
-    "women+footwear",
-    "women+accessories",
-    "women+jewellery",
-    "women+handbags",
+    # "women+western+wear",
+    # "women+footwear",
+    # "women+accessories",
+    # "women+jewellery",
+    # "women+handbags",
     "men+accessories",
-    "kids+clothing",
-    "kids+footwear",
-    "kids+toys",
+    # "kids+clothing",
+    # "kids+footwear",
+    # "kids+toys",
 ]
 
 electronics_and_gadgets = [
