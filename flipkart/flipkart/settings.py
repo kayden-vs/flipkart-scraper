@@ -25,13 +25,15 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = True
+COOKIES_DEBUG = False
+COOKIES_PERSISTENCE = True
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -51,20 +53,29 @@ ROBOTSTXT_OBEY = False
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   "scrapy_selenium.SeleniumMiddleware": 800,
-   "flipkart.flipkart.middlewares.FlipkartDownloaderMiddleware": 543,
+    'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': 700,
+    'flipkart.flipkart.middlewares.FlipkartDownloaderMiddleware': 750,
+    # 'scrapy_selenium.SeleniumMiddleware': 800,
 }
 
 # Configure selenium driver settings:
-SELENIUM_DRIVER_NAME = 'chrome'
-SELENIUM_DRIVER_EXECUTABLE_PATH = '/usr/local/bin/chromedriver'
-#added more things for less resource usage
-SELENIUM_DRIVER_ARGUMENTS = [
-    '--headless',
-    '--no-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu'
-]
+# SELENIUM_DRIVER_NAME = 'chrome'
+# SELENIUM_DRIVER_EXECUTABLE_PATH = '/usr/local/bin/chromedriver'
+# #added more things for less resource usage
+# SELENIUM_DRIVER_ARGUMENTS = [
+#     '--headless',
+#     '--no-sandbox',
+#     '--disable-dev-shm-usage',
+#     '--disable-gpu'
+# ]
+
+# Add retry middleware
+RETRY_ENABLED = True
+RETRY_TIMES = 2
+RETRY_HTTP_CODES = [500, 502, 503, 504, 429, 403]  # Default retry codes
+RETRY_HTTP_CODES_BY_DOMAIN = {
+    'pricehistory.app': [500, 502, 503, 504, 429, 403, 404]  # Include 404 just for this domain
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -102,3 +113,17 @@ AUTOTHROTTLE_DEBUG = False
 # Set settings whose default value is deprecated to a future-proof value
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+
+# In settings.py
+DOWNLOAD_DELAY_SETTINGS = {
+    'pricehistory.app': 3.0,  # 3 seconds between requests to this domain
+}
+
+DOWNLOAD_TIMEOUT = 30  # 30 seconds default timeout
+DOWNLOAD_TIMEOUTS = {
+    'pricehistory.app': 60,  # 60 seconds timeout for this domain
+    'flipkart.com': 5.0
+}
+
+LOG_FILE = "scraper.log"
+# LOG_LEVEL = "INFO"

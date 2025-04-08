@@ -6,8 +6,8 @@
 from scrapy import signals
 import random
 import re
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver
+# from selenium.webdriver.chrome.service import Service
+# from selenium import webdriver
 from fake_useragent import UserAgent
 
 # useful for handling different item types with a single interface
@@ -78,21 +78,30 @@ class FlipkartDownloaderMiddleware:
         return s
 
     def process_request(self, request, spider):
-        # Get complete user agent dictionary with all browser details
         ua_dict = self.ua.getRandom
-        
-        # Set the user agent string from the dictionary
         request.headers["User-Agent"] = ua_dict['useragent']
         request.headers.pop("X-Forwarded-For", None)
         
-        # For pricehistory.app requests, add browser-specific headers
         if 'pricehistory.app' in request.url:
+            # Apply longer timeout for this domain
+            domain_timeout = spider.settings.get('DOWNLOAD_TIMEOUTS', {}).get('pricehistory.app')
+            if domain_timeout:
+                request.meta['download_timeout'] = domain_timeout
+            
+            request.meta['download_delay'] = 3.0
+            
+            # Important - add Origin header (missing in your current code)
+            request.headers["Origin"] = "https://pricehistory.app"
+            request.headers["Accept"] = "application/json, text/plain, */*"
+            
+            # Existing headers
+            request.meta['cookiejar'] = 'pricehistory'
+            request.headers["DNT"] = "1"
             request.headers["Content-Type"] = "application/json"
             request.headers["Referer"] = "https://pricehistory.app/"
-            request.headers["Accept"] = "application/json, text/plain, */*"
             request.headers["Accept-Language"] = "en-US,en;q=0.9"
             
-            # Extract key information directly from the dictionary
+            # Extract browser information
             browser = ua_dict['browser']
             version = ua_dict['browser_version_major_minor']
             os_name = ua_dict['os']

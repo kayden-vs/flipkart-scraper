@@ -1,20 +1,15 @@
 import scrapy
 import re
-from scrapy_selenium import SeleniumRequest
+import json
+import requests
 from . import search_terms
 import time
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from .telegram_utils import send_telegram_message
 import logging
 import os
 from dotenv import load_dotenv
-#avoiding too much logging
-logging.getLogger("selenium.webdriver.remote.remote_connection").setLevel(logging.WARNING)
+from twisted.internet.error import TimeoutError, ConnectionRefusedError
+from scrapy.spidermiddlewares.httperror import HttpError
 
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -24,12 +19,18 @@ class ProductsSpider(scrapy.Spider):
     allowed_domains = ["flipkart.com", "pricehistory.app"]
     
     def start_requests(self):
-        start_urls = search_terms.fashion_and_apparel  #edited
-        base_url = "https://www.flipkart.com/search?q={}&page={}"          
-        for term in search_terms.fashion_and_apparel:   #edited
-            for page in range(1,26):
-                url = base_url.format(term, page)                                 
-                yield scrapy.Request(url=url, callback=self.parse)          
+        import random
+        terms = list(search_terms.footwear)
+        random.shuffle(terms)  # Randomize search term order
+        
+        # Only request the first page of each search term initially
+        for term in terms:
+            url = f"https://www.flipkart.com/search?q={term}&page=1"
+            yield scrapy.Request(
+                url=url,
+                callback=self.parse,
+                meta={"search_term": term, "current_page": 1}
+            )
 
     def extractValue(self, discount_text):
         if not discount_text:
@@ -39,7 +40,6 @@ class ProductsSpider(scrapy.Spider):
             discount_value = int(match.group(1))
             return discount_value
         return 0
-
 
     def parse(self, response):
         self.logger.info("Scraping URL: %s", response.url)
@@ -81,77 +81,87 @@ class ProductsSpider(scrapy.Spider):
         
             discount_value = self.extractValue(discount_text)
             if discount_value > 75:
-                full_product_url = f"https://flipkart.com{product_link}"
-                #logging if a product is found
+                full_product_url = f"https://www.flipkart.com{product_link}"
                 self.logger.info(f"FOUND : {title}: Rs.{price} ({discount_value}% Off)")
-                yield SeleniumRequest(
-                    url="https://pricehistory.app",
-                    callback=self.parse_pricetracker,
+
+                # for API search requests
+                yield scrapy.Request(
+                    url="https://pricehistory.app/api/search",
+                    method='POST',
+                    body=json.dumps({"url": full_product_url}),
+                    callback=self.parse_price_search_result,
+                    errback=self.handle_error,
                     meta={
                         "product": {
                             "title": title,
                             "discount": discount_text,
                             "price": price,
                             "product_link": full_product_url,
-                        },
-                        "flipkart_product_url": full_product_url,
+                        }
                     },
-                    wait_time=5,
-                    dont_filter=True  #changed
+                    dont_filter=True,
+                    priority=10
                 )
-    
-    def parse_pricetracker(self, response):
-        product = response.meta["product"]
-        driver = response.meta['driver']
+        
+        # At the end of your parse method, add:
+        search_term = response.meta.get("search_term")
+        current_page = response.meta.get("current_page", 1)
+        
+        # Request next page only after processing current page
+        if current_page < 25:
+            next_page = current_page + 1
+            next_url = f"https://www.flipkart.com/search?q={search_term}&page={next_page}"
+            yield scrapy.Request(
+                url=next_url,
+                callback=self.parse,
+                meta={"search_term": search_term, "current_page": next_page},
+                priority=-1  #lowest priority
+            )
 
-        # self.logger.info("flipkart_product_url: %s", response.meta.get("flipkart_product_url"))
-        wait = WebDriverWait(driver, 10)
-        search_box = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#search")))
-        search_box = driver.find_element(By.CSS_SELECTOR, "#search")
-        search_box.clear()
-        search_box.send_keys(response.meta["flipkart_product_url"])
-        self.logger.info("Typed URL in search box: %s", search_box.get_attribute("value"))
-        search_box.send_keys(Keys.ENTER)
-        time.sleep(10)
+    def parse_price_search_result(self, response):
 
         #for debugging
-        # self.logger.info("Current URL after search submission: %s", driver.current_url)
-        driver.save_screenshot("after_search.png")
-        self.logger.info("Saved screenshot to after_search.png")
-
-        #condition 1: product not found
-        # try:
-        #     wait = WebDriverWait(driver, 10)
-        #     wait.until(EC.any_of(
-        #         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center"))
-        #     ))
-        # except Exception as e:
-        #     self.logger.error("Timeout waiting for pricetracker page to load: %s", e)
-        #     return
+        # self.logger.info(f"Status: {response.status}, URL: {response.url}")
+        # self.logger.info(f"Headers: {response.headers}")
+        # self.logger.info(f"Body: {response.text[:200]}")
+        product = response.meta['product']
         
-        # not_found_elements = driver.find_elements(By.CSS_SELECTOR, "div.p-1.text-white-50.rounded.text-center")
-        # if not_found_elements and any(
-        #     msg in el.text for el in not_found_elements for msg in [
-        #         "Page not Found!",
-        #         "Product Added to Track!",
-        #         "Store Not Supported as of Now!"
-        #     ]
-        # ):
-        #     self.logger.info(
-        #         "Product not found on pricetracker. Skipping: %s",
-        #         response.meta["flipkart_product_url"]
-        #     )
-        #     return
-        
-        #condition 2: product result is shown
         try:
-            rating_scale_el = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div.rating-scale.row > div.active"))
-            )
-            rating_scale = rating_scale_el.text.strip()
-            self.logger.info("Rating scale text obtained: '%s'", rating_scale)
-            if rating_scale in ["Okay", "Yes"]:
-                #send telegram notification
+            data = json.loads(response.text)
+            if (data.get('status') == 'true' or data.get('status') is True) and data.get('code'):
+                self.logger.info(f"Product found on Pricetracker: {product['title']}")
+                url_code = data['code']
+                
+                # Add debug log before making request
+                self.logger.debug(f"Making request to https://pricehistory.app/p/{url_code}")
+                
+                # Make request to the product page to get price history
+                yield scrapy.Request(
+                    url=f"https://pricehistory.app/p/{url_code}",
+                    callback=self.parse_price_history,
+                    errback=self.handle_error,
+                    meta={"product": product},
+                    dont_filter=True,
+                    priority=20
+                )
+            else:
+                self.logger.info(f"Product not on Pricetracker: {product['title']}")
+        except json.JSONDecodeError:
+            self.logger.error(f"Failed to decode JSON response: {response.text[:100]}")
+        except Exception as e:
+            self.logger.error(f"Error processing price search result: {str(e)}")
+
+    def parse_price_history(self, response):
+        # Add debug log at the beginning of the method
+        self.logger.debug(f"Successfully reached price history page: {response.url}")
+        
+        product = response.meta['product']
+        flipkart_product_url = product.get('product_link')
+
+        try:
+            # Fix the logical error in rating check
+            rating_scale = response.css("div.rating-scale > div.active::text").get()
+            if rating_scale in ["Okay", "Yes"]:  # Correct way to check if value is in a list
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
@@ -163,6 +173,28 @@ class ProductsSpider(scrapy.Spider):
                 send_telegram_message(message, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
                 yield product
             else:
-                self.logger.info("Didnt Pass rating scale. Skipping: %s", response.meta["flipkart_product_url"])
+                self.logger.info(f"Didn't pass rating scale ({rating_scale}). Skipping: {product.get('title')}")
         except Exception as e:
-            self.logger.error("Product not in Pricetracker: %s", product.get('title'))  #replaced this selenium error
+            self.logger.error(f"Error getting rating scale info: {str(e)}")
+
+    def handle_error(self, failure):
+        request = failure.request
+        product = request.meta.get('product', {})
+        
+        if failure.check(HttpError):
+            response = failure.value.response
+            if response.status == 404:
+                self.logger.info(f"Product not found on Pricetracker: {product.get('title', 'Unknown')}")
+            else:
+                self.logger.error(f"HTTP Error {response.status} for {product.get('title', 'Unknown')}")
+        elif failure.check(TimeoutError, ConnectionRefusedError):
+            self.logger.warning(f"Connection error for {product.get('title', 'Unknown')} - retrying")
+            # Create a new request with increased delay
+            new_request = request.copy()
+            new_request.meta['download_delay'] = 5.0
+            new_request.dont_filter = True
+            return new_request
+        else:
+            self.logger.error(f"Error for {product.get('title', 'Unknown')}: {repr(failure.value)}")
+
+
