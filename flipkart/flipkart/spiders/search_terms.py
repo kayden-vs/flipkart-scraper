@@ -20,8 +20,8 @@ fashion_and_apparel = [
     "men+clothing",
     # "men+ethnic+wear",
     "men+casual+wear",
-    "men+formal+wear",
-    "men+footwear",
+    # "men+formal+wear",
+    # "men+footwear",
     "men+accessories",
     "women+clothing",
     "women+ethnic+wear",
@@ -156,7 +156,7 @@ tempSearchTerms = (
 )
 searchTerms = (
     my_search_terms + 
-    footwear +
+    # footwear +
     electronics_and_gadgets + 
     automotive_accessories +
     popular_discount +

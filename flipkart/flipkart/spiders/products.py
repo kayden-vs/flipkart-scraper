@@ -20,7 +20,7 @@ class ProductsSpider(scrapy.Spider):
     
     def start_requests(self):
         import random
-        terms = list(search_terms.footwear)
+        terms = list(search_terms.searchTerms)
         random.shuffle(terms)  # Randomize search term order
         
         # Only request the first page of each search term initially
@@ -123,7 +123,7 @@ class ProductsSpider(scrapy.Spider):
         #for debugging
         # self.logger.info(f"Status: {response.status}, URL: {response.url}")
         # self.logger.info(f"Headers: {response.headers}")
-        # self.logger.info(f"Body: {response.text[:200]}")
+        # self.logger.info(f"Body: {response.text[:200]}")THERHE
         product = response.meta['product']
         
         try:

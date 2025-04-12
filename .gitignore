@@ -4,10 +4,10 @@ foo*
 flipkart/build/
 flipkart/project.egg-info/
 flipkart/scrapinghub.yml
-flipkart/setup.py
 flipkart/flipkart/__pycache__/
 after_search.png
 flipkart/flipkart/spiders/__pycache__/
 .env
 test.py
 tempCodeRunnerFile.py
+build/
