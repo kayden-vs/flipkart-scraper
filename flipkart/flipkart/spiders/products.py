@@ -70,7 +70,7 @@ class ProductsSpider(scrapy.Spider):
                 title = productArea.css("a.wjcEIp::attr(title)").get()
                 price = productArea.css("div.Nx9bqj::text").get()
             elif layout == 'third':
-                title = productArea.css("div.KzDlHZ").get()
+                title = productArea.css("div.KzDlHZ::text").get()  
                 price = productArea.css("div.Nx9bqj::text").get()
 
             if price:
@@ -80,7 +80,7 @@ class ProductsSpider(scrapy.Spider):
                 continue
         
             discount_value = self.extractValue(discount_text)
-            if discount_value > 75:
+            if discount_value > 80:
                 full_product_url = f"https://www.flipkart.com{product_link}"
                 self.logger.info(f"FOUND : {title}: Rs.{price} ({discount_value}% Off)")
 
@@ -159,23 +159,34 @@ class ProductsSpider(scrapy.Spider):
         flipkart_product_url = product.get('product_link')
 
         try:
-            # Fix the logical error in rating check
-            rating_scale = response.css("div.rating-scale > div.active::text").get()
-            if rating_scale in ["Okay", "Yes"]:  # Correct way to check if value is in a list
+            # rating_scale = response.css("div.rating-scale > div.active::text").get()
+            average_price = response.css("div.all-time-price-overview div.bg-warning > span.amount::text").get()
+            lowest = response.css("div.all-time-price-overview div.bg-info > span.amount::text").get()
+            if not lowest:
+                self.logger.error(f"Could not find lowest price for: {product.get('title')}")
+                return
+            lowest_price = lowest.lstrip("₹")
+            lowest_price = int(lowest_price)
+            product_price = int(product.get('price'))
+
+            self.logger.debug(f"Comparing - Product price: {product_price}, Lowest ever: {lowest_price}")
+            # if rating_scale in ["Okay", "Yes"]:
+            if product_price <= lowest_price:
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
                     f"Discount: {product.get('discount')}\n"
-                    f"Price: {product.get('price')}\n"
-                    f"Rating Scale: {rating_scale}\n" 
+                    f"Current Price: ₹{product_price}\n"
+                    f"Average Price: {average_price}\n"
+                    f"Lowest Ever: ₹{lowest_price}\n"
                     f"Link: <a href='{product.get('product_link')}'>{product.get('product_link')}</a>"
                 )
                 send_telegram_message(message, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
                 yield product
             else:
-                self.logger.info(f"Didn't pass rating scale ({rating_scale}). Skipping: {product.get('title')}")
+                self.logger.info(f"Didn't pass the price tracker. Skipping: {product.get('title')}")
         except Exception as e:
-            self.logger.error(f"Error getting rating scale info: {str(e)}")
+            self.logger.error(f"Error getting pricetracker  info: {str(e)}")
 
     def handle_error(self, failure):
         request = failure.request

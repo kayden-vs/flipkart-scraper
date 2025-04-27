@@ -1,8 +1,4 @@
 my_search_terms = [
-    "face+serum+vitamin+c",
-    # "skincare",
-    # "sunscreen",
-    "face+serum"
     
 ]
 
@@ -23,8 +19,8 @@ fashion_and_apparel = [
     # "men+formal+wear",
     # "men+footwear",
     "men+accessories",
-    "women+clothing",
-    "women+ethnic+wear",
+    # "women+clothing",
+    # "women+ethnic+wear",
     # "women+western+wear",
     # "women+footwear",
     # "women+accessories",
@@ -43,7 +39,7 @@ electronics_and_gadgets = [
     "tablets",
     "televisions",
     "headphones",
-    "earbuds",
+    # "earbuds",
     "speakers",
     "gaming+consoles",
     "gaming+accessories",
@@ -146,14 +142,6 @@ popular_discount = [
     "washing+machines",
     "refrigerators"
 ]
-
-tempSearchTerms = (
-    # my_search_terms +
-    footwear +
-    automotive_accessories + 
-    sports_fitness_outdoors
-
-)
 searchTerms = (
     my_search_terms + 
     # footwear +

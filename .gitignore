@@ -11,3 +11,5 @@ flipkart/flipkart/spiders/__pycache__/
 test.py
 tempCodeRunnerFile.py
 build/
+scraper.log
+output.json
