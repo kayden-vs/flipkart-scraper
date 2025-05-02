@@ -46,8 +46,8 @@ electronics_and_gadgets = [
     "cameras",
     "dslr",
     "mirrorless+cameras",
-    "smart+watches",
-    "wearable+devices",
+    # "smart+watches",
+    # "wearable+devices",
     "vr+headsets",
     "drones",
 ]
@@ -108,7 +108,7 @@ miscellaneous = [
 ]
 other_items = [
     "books", "novels", "textbooks", "e+readers",
-    "sneakers", "running+shoes", "formal+shoes", 
+    # "sneakers", "running+shoes", "formal+shoes", 
     "casual+shoes", "winter+wear", "summer+wear", 
     "jumpsuits", "dresses", "jackets", "sweaters", 
     "backpacks", "cookware", "bakeware", "blenders", 
@@ -131,9 +131,9 @@ other_items = [
 popular_discount = [
     "smartphones",
     "gaming+laptops",
-    "smart+watches",
-    "wireless+earbuds",
-    "bluetooth+speakers",
+    # "smart+watches",
+    # "wireless+earbuds",
+    # "bluetooth+speakers",
     "LED+TVs",
     "drones",
     "gaming+consoles",

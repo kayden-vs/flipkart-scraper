@@ -160,7 +160,13 @@ class ProductsSpider(scrapy.Spider):
 
         try:
             # rating_scale = response.css("div.rating-scale > div.active::text").get()
-            average_price = response.css("div.all-time-price-overview div.bg-warning > span.amount::text").get()
+            average = response.css("div.all-time-price-overview div.bg-warning > span.amount::text").get()
+            if not average:
+                self.logger.error(f"Could not find average price for: {product.get('title')}")
+                return
+            average_price = average.lstrip("₹")
+            average_price = int(average_price)
+
             lowest = response.css("div.all-time-price-overview div.bg-info > span.amount::text").get()
             if not lowest:
                 self.logger.error(f"Could not find lowest price for: {product.get('title')}")
@@ -171,13 +177,13 @@ class ProductsSpider(scrapy.Spider):
 
             self.logger.debug(f"Comparing - Product price: {product_price}, Lowest ever: {lowest_price}")
             # if rating_scale in ["Okay", "Yes"]:
-            if product_price <= lowest_price:
+            if product_price <= lowest_price and lowest_price != average_price:
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
                     f"Discount: {product.get('discount')}\n"
                     f"Current Price: ₹{product_price}\n"
-                    f"Average Price: {average_price}\n"
+                    f"Average Price: ₹{average_price}\n"
                     f"Lowest Ever: ₹{lowest_price}\n"
                     f"Link: <a href='{product.get('product_link')}'>{product.get('product_link')}</a>"
                 )
