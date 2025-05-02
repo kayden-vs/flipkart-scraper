@@ -70,6 +70,7 @@ scrapy crawl products -o deals.json
 
 ## Architecture
 
+![Workflow Diagram](docs/scraper_mermaid.png)
 - **products spider** (`flipkart/flipkart/spiders/products.py`): searches Flipkart, parses deals, verifies historical prices, and sends Telegram alerts.
 - **search_terms** (`flipkart/flipkart/spiders/search_terms.py`): defines search keywords used by the spider.
 - **telegram_utils** (`flipkart/flipkart/telegram_utils.py`): sends formatted Telegram messages.
