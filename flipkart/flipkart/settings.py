@@ -126,4 +126,4 @@ DOWNLOAD_TIMEOUTS = {
 }
 
 LOG_FILE = "scraper.log"
-# LOG_LEVEL = "INFO"
+LOG_FILE_APPEND = False

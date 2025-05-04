@@ -164,20 +164,20 @@ class ProductsSpider(scrapy.Spider):
             if not average:
                 self.logger.error(f"Could not find average price for: {product.get('title')}")
                 return
-            average_price = average.lstrip("₹")
+            average_price = average.lstrip("₹").replace(",", "").strip()
             average_price = int(average_price)
 
             lowest = response.css("div.all-time-price-overview div.bg-info > span.amount::text").get()
             if not lowest:
                 self.logger.error(f"Could not find lowest price for: {product.get('title')}")
                 return
-            lowest_price = lowest.lstrip("₹")
+            lowest_price = lowest.lstrip("₹").replace(",", "").strip()
             lowest_price = int(lowest_price)
             product_price = int(product.get('price'))
 
             self.logger.debug(f"Comparing - Product price: {product_price}, Lowest ever: {lowest_price}")
             # if rating_scale in ["Okay", "Yes"]:
-            if product_price <= lowest_price and lowest_price != average_price:
+            if product_price <= lowest_price and average_price > lowest_price*1.2:
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
