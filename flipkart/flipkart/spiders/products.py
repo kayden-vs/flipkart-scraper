@@ -14,6 +14,7 @@ from scrapy.spidermiddlewares.httperror import HttpError
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
 class ProductsSpider(scrapy.Spider):
     name = "products"
     allowed_domains = ["flipkart.com", "pricehistory.app"]
@@ -25,6 +26,7 @@ class ProductsSpider(scrapy.Spider):
         
         # Only request the first page of each search term initially
         for term in terms:
+            self.logger.info("Searching on : %s", term)
             url = f"https://www.flipkart.com/search?q={term}&page=1"
             yield scrapy.Request(
                 url=url,
@@ -80,7 +82,7 @@ class ProductsSpider(scrapy.Spider):
                 continue
         
             discount_value = self.extractValue(discount_text)
-            if discount_value > 80:
+            if discount_value > 75:
                 full_product_url = f"https://www.flipkart.com{product_link}"
                 self.logger.info(f"FOUND : {title}: Rs.{price} ({discount_value}% Off)")
 
@@ -97,7 +99,9 @@ class ProductsSpider(scrapy.Spider):
                             "discount": discount_text,
                             "price": price,
                             "product_link": full_product_url,
-                        }
+                        },
+                        "download_timeout": 5,
+                        "is_pricehistory_search_api": True
                     },
                     dont_filter=True,
                     priority=10
@@ -114,6 +118,7 @@ class ProductsSpider(scrapy.Spider):
             yield scrapy.Request(
                 url=next_url,
                 callback=self.parse,
+                errback=self.handle_error,
                 meta={"search_term": search_term, "current_page": next_page},
                 priority=-1  #lowest priority
             )
@@ -176,8 +181,8 @@ class ProductsSpider(scrapy.Spider):
             product_price = int(product.get('price'))
 
             self.logger.debug(f"Comparing - Product price: {product_price}, Lowest ever: {lowest_price}")
-            # if rating_scale in ["Okay", "Yes"]:
-            if product_price <= lowest_price and average_price > lowest_price*1.2:
+
+            if product_price <= lowest_price and average_price > lowest_price*1.4:
                 message = (
                     f"<b>Product Found!</b>\n"
                     f"Title: {product.get('title')}\n"
@@ -198,20 +203,48 @@ class ProductsSpider(scrapy.Spider):
         request = failure.request
         product = request.meta.get('product', {})
         
+        # Check if this error is for the specific pricehistory.app/api/search request
+        if request.meta.get('is_pricehistory_search_api'):
+            if failure.check(TimeoutError):
+                self.logger.warning(
+                    f"Pricehistory API search timed out (8s) for '{product.get('title', 'Unknown')}' at {request.url}. Dropping product."
+                )
+            elif failure.check(HttpError):
+                response = failure.value.response
+                if response.status == 404:
+                    self.logger.info(
+                        f"Pricehistory API search returned 404 for '{product.get('title', 'Unknown')}' at {request.url}."
+                    )
+                elif response.status != 200: # Any other non-200 HTTP error for this specific API
+                    self.logger.error(
+                        f"Pricehistory API search HTTP Error {response.status} for '{product.get('title', 'Unknown')}' at {request.url}. Dropping product."
+                    )
+                # If status was 200, it wouldn't be an HttpError.
+            else: # Other unexpected errors for this specific API call
+                self.logger.error(
+                    f"Unexpected error during Pricehistory API search for '{product.get('title', 'Unknown')}' at {request.url}: {repr(failure.value)}. Dropping product."
+                )
+            return # Explicitly drop the product by not returning a new request for retry
+
+        # Generic error handling for other requests (e.g., Flipkart pages, or pricehistory.app/p/<code> pages)
         if failure.check(HttpError):
             response = failure.value.response
             if response.status == 404:
-                self.logger.info(f"Product not found on Pricetracker: {product.get('title', 'Unknown')}")
+                self.logger.info(f"Page not found (404) for '{product.get('title', 'Unknown')}' at {request.url}.")
             else:
-                self.logger.error(f"HTTP Error {response.status} for {product.get('title', 'Unknown')}")
-        elif failure.check(TimeoutError, ConnectionRefusedError):
-            self.logger.warning(f"Connection error for {product.get('title', 'Unknown')} - retrying")
-            # Create a new request with increased delay
+                self.logger.error(f"HTTP Error {response.status} for '{product.get('title', 'Unknown')}' at {request.url}.")
+        elif failure.check(TimeoutError, ConnectionRefusedError): # For non-pricehistory-API-search requests
+            self.logger.warning(f"Connection error for '{product.get('title', 'Unknown')}' at {request.url} - retrying.")
             new_request = request.copy()
-            new_request.meta['download_delay'] = 5.0
+            # Adjust retry parameters as needed. Using existing download_timeout or a default from settings.
+            current_timeout = request.meta.get('download_timeout', self.settings.get('DOWNLOAD_TIMEOUT', 180))
+            new_request.meta['download_timeout'] = current_timeout + 10 # Example: increase timeout for retry
+            new_request.meta['download_delay'] = request.meta.get('download_delay', 0) + 5.0 
             new_request.dont_filter = True
-            return new_request
+            return new_request # Retry this request
         else:
-            self.logger.error(f"Error for {product.get('title', 'Unknown')}: {repr(failure.value)}")
+            self.logger.error(f"Unhandled error for '{product.get('title', 'Unknown')}' at {request.url}: {repr(failure.value)}.")
+        # If not retrying above, product is implicitly dropped for these generic errors too,
+        # as no new request is returned.
 
 

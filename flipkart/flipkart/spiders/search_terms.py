@@ -187,7 +187,7 @@ premium_products = [
     "flagship+smartphones",
     "oled+tv",
     "gaming+laptops+rtx",
-    "premium+headphones",
+    # "premium+headphones",
     "apple+macbook",
     "premium+watches",
     "designer+handbags",
