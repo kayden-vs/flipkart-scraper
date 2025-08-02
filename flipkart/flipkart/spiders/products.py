@@ -165,18 +165,18 @@ class ProductsSpider(scrapy.Spider):
 
         try:
             # rating_scale = response.css("div.rating-scale > div.active::text").get()
-            average = response.css("div.all-time-price-overview div.bg-warning > span.amount::text").get()
+            average = response.css("div.chart-price-average > span.amount::text").get()
             if not average:
                 self.logger.error(f"Could not find average price for: {product.get('title')}")
                 return
-            average_price = average.lstrip("₹").replace(",", "").strip()
+            average_price = average.lstrip("₹").strip()
             average_price = int(average_price)
 
-            lowest = response.css("div.all-time-price-overview div.bg-info > span.amount::text").get()
+            lowest = response.css("div.chart-price-lowest > span.amount::text").get()
             if not lowest:
                 self.logger.error(f"Could not find lowest price for: {product.get('title')}")
                 return
-            lowest_price = lowest.lstrip("₹").replace(",", "").strip()
+            lowest_price = lowest.lstrip("₹").strip()
             lowest_price = int(lowest_price)
             product_price = int(product.get('price'))
 
