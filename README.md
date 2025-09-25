@@ -1,11 +1,16 @@
 # Flipkart Price Tracker
 
+> **⚠️ Project Status: Unmaintained**
+>
+> This project is **not actively maintained**.  
+> If you are interested in using, forking, or contributing to this project, please [open an issue](https://github.com/kayden-vs/flipkart-scraper/issues) or contact me directly.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)  
 [![PyPI Version](https://img.shields.io/pypi/v/scrapy.svg)](https://pypi.org/project/scrapy/)  
 
 ## Project Overview
 
-**Flipkart Price Tracker** is a Scrapy‑based spider that searches Flipkart for steep discounts (>80%), verifies real‑time deals against historical price data from PriceHistory.app, and notifies you via Telegram when you find a product at its all‑time low. Ideal for bargain hunters, deal‑aggregators, and developers learning advanced web‑scraping patterns.
+**Flipkart Price Tracker** is a Scrapy‑based spider that searches Flipkart for steep discounts (>80%), verifies real‑time deals against historical price data from PriceHistory.app, and notifies you via Telegram when you find a product at its all‑time low. Ideal for deal‑aggregators and developers learning advanced web‑scraping patterns.
 
 ## Features
 
